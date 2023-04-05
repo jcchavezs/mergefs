@@ -1,7 +1,6 @@
 package io
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -14,28 +13,10 @@ import (
 type osFS struct{}
 
 func (osFS) Open(name string) (fs.File, error) {
-	if name[0] == '/' {
-		return os.Open(name)
-	}
-	// TODO(jcchavezs): Shall we use ValidPath?
-	absName, err := filepath.Abs(name)
-	if err != nil {
-		return nil, err
-	}
-	return os.Open(absName)
+	return os.Open(name)
 }
 
 func (osFS) ReadFile(name string) ([]byte, error) {
-	if name[0] == '/' {
-		return os.ReadFile(name)
-	}
-
-	// TODO(jcchavezs): Shall we use ValidPath?
-	absName, err := filepath.Abs(name)
-	if err != nil {
-		fmt.Println(absName)
-		return nil, err
-	}
 	return os.ReadFile(name)
 }
 
