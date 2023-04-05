@@ -8,6 +8,14 @@ import (
 
 // Merge filesystems
 func Merge(filesystems ...fs.FS) fs.FS {
+	if len(filesystems) == 0 {
+		return mergedFS{}
+	}
+
+	if len(filesystems) == 1 {
+		return filesystems[0]
+	}
+
 	mfs := mergedFS{filesystems: filesystems}
 	var (
 		supportsGlob     = true

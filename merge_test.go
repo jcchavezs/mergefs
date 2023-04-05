@@ -1,6 +1,8 @@
 package mergefs_test
 
 import (
+	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -12,6 +14,20 @@ import (
 )
 
 func TestMerge(t *testing.T) {
+	t.Run("empty merge", func(t *testing.T) {
+		mfs := mergefs.Merge()
+
+		if _, err := mfs.Open("a"); err == nil || !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("expected error")
+		}
+	})
+
+	t.Run("merge of one FS", func(t *testing.T) {
+		sfs := fstest.MapFS{}
+		mfs := mergefs.Merge(sfs)
+		require.Equal(t, fmt.Sprintf("%v", sfs), fmt.Sprintf("%v", mfs))
+	})
+
 	t.Run("merge of two FS", func(t *testing.T) {
 		a := fstest.MapFS{"a": &fstest.MapFile{Data: []byte("text")}}
 		b := fstest.MapFS{"b": &fstest.MapFile{Data: []byte("text")}}
