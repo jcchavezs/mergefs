@@ -56,7 +56,7 @@ func TestReadfile(t *testing.T) {
 var testdataFS embed.FS
 
 func TestAbsolutePath(t *testing.T) {
-	// Emulates github.com/corazawaf/coraza-coreruleset/blob/main/coreruleset.go usafe of mergefs
+	// Emulates github.com/corazawaf/coraza-coreruleset/blob/main/coreruleset.go usage of mergefs
 	rulesFS, err := fs.Sub(testdataFS, "testdata")
 	require.NoError(t, err)
 
