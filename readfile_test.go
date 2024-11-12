@@ -4,6 +4,7 @@ import (
 	"embed"
 	"io/fs"
 	"os"
+	"strings"
 	"testing"
 	"testing/fstest"
 
@@ -55,7 +56,11 @@ func TestReadfile(t *testing.T) {
 var testdataFS embed.FS
 
 func TestAbsolutePath(t *testing.T) {
-	mfs := Merge(testdataFS, io.OSFS)
+	// Emulates github.com/corazawaf/coraza-coreruleset/blob/main/coreruleset.go usage of mergefs
+	rulesFS, err := fs.Sub(testdataFS, "testdata")
+	require.NoError(t, err)
+
+	mfs := Merge(rulesFS, io.OSFS)
 
 	f, err := os.CreateTemp(t.TempDir(), "fizz.conf")
 	require.NoError(t, err)
@@ -71,4 +76,9 @@ func TestAbsolutePath(t *testing.T) {
 
 	_, err = rfmfs.ReadFile(f.Name())
 	require.NoError(t, err)
+
+	_, err = rfmfs.ReadFile("/tmp/doesnotexist.conf")
+	if !strings.Contains(err.Error(), "no such file or directory") {
+		t.Errorf("expected not found error. Got: %s", err.Error())
+	}
 }
