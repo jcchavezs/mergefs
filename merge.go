@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"sort"
 )
 
 // Merge filesystems
@@ -119,6 +120,9 @@ func (mfs mergedFS) ReadDir(name string) ([]fs.DirEntry, error) {
 	for _, value := range dirsMap {
 		dirs = append(dirs, value)
 	}
+	sort.Slice(dirs, func(i, j int) bool {
+		return dirs[i].Name() < dirs[j].Name()
+	})
 
 	return dirs, nil
 }

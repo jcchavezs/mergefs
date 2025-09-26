@@ -104,3 +104,33 @@ func TestMergedOpen(t *testing.T) {
 
 	require.NoError(t, file.Close())
 }
+
+func TestReadDirIsSorted(t *testing.T) {
+	fs1 := fstest.MapFS{
+		"dir":   &fstest.MapFile{Mode: fs.ModeDir},
+		"dir/b": &fstest.MapFile{Mode: fs.ModeDir},
+		"dir/a": &fstest.MapFile{Mode: fs.ModeDir},
+	}
+	fs2 := fstest.MapFS{
+		"dir":   &fstest.MapFile{Mode: fs.ModeDir},
+		"dir/d": &fstest.MapFile{Mode: fs.ModeDir},
+		"dir/c": &fstest.MapFile{Mode: fs.ModeDir},
+	}
+	fs3 := fstest.MapFS{
+		"dir":   &fstest.MapFile{Mode: fs.ModeDir},
+		"dir/3": &fstest.MapFile{Mode: fs.ModeDir},
+		"dir/2": &fstest.MapFile{Mode: fs.ModeDir},
+		"dir/1": &fstest.MapFile{Mode: fs.ModeDir},
+	}
+
+	mfs := mergefs.Merge(fs1, fs2, fs3)
+	entries, err := fs.ReadDir(mfs, "dir")
+	require.NoError(t, err)
+
+	names := make([]string, len(entries))
+	for i, e := range entries {
+		names[i] = e.Name()
+	}
+
+	require.Equal(t, []string{"1", "2", "3", "a", "b", "c", "d"}, names)
+}
